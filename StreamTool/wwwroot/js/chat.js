@@ -22,60 +22,34 @@ function appendMessage(message) {
     var sender = message.sender;
     var msg = message.message;
 
-    // Setup message container
-    var msgDiv = document.createElement('div');
-    msgDiv.className = "chat-message center-block";
-    msgDiv.id = "msg_" + id;
+    // Get template
+    var template = document.querySelector('#messageTempalte');
 
-    // Setup sender and delete icon container
-    var titelContainer = document.createElement('div');
-    titelContainer.className = "row";
+    // Copy template content (true = deep copy)
+    var messageContainer = document.importNode(template.content, true);
 
-    var senderContainer = document.createElement('div');
-    senderContainer.className = "col-xs-8 col-md-6";
+    // Add unique container id
+    messageContainer.querySelector('#messageContainer').id = "msg_" + id;
 
-    var deleteContainer = document.createElement('div');
-    deleteContainer.className = "col-xs-4 col-md-6 text-right";
+    // Add username
+    messageContainer.querySelector('#usernameTemplate').innerText = sender + ": ";
 
-    // Setup sender content
-    var senderContent = document.createElement('h4');
-    senderContent.className = "message-name";
-    senderContent.innerText = sender
+    // Add message text
+    messageContainer.querySelector('#textTemplate').innerText = msg;
 
-    // Setup delete content
-    /*
-     * Font awesome <i> tags get converted to <svg> elements.
-     * For that reason, we have to add the onclick event to a surrounding <span> tag.
-     * 
-     */ 
-    var deleteContent = document.createElement('span');
-    deleteContent.innerHTML = "<i class=\"fa fa-trash fa-fw\" aria-hidden=\"true\"></i>";
-    deleteContent.id = id;
-    deleteContent.onclick = deleteMessage;
+    // Add delete functionality
+    var deleteTemplate = messageContainer.querySelector('#deleteTemplate');
+    deleteTemplate.id = id;
+    deleteTemplate.onclick = deleteMessage;
 
-    // Setup message text container
-    var messageContainer = document.createElement('div');
-    messageContainer.className = "row message-text";
-    messageContainer.innerText = msg;
-
-    // Put everything into msg div
-    senderContainer.appendChild(senderContent);
-    deleteContainer.appendChild(deleteContent);
-
-    titelContainer.appendChild(senderContainer);
-    titelContainer.appendChild(deleteContainer);
-
-    msgDiv.appendChild(titelContainer);
-    msgDiv.appendChild(messageContainer);
-
-    document.getElementById("messageList").appendChild(msgDiv);
+    document.getElementById("messageList").appendChild(messageContainer);
 }
 
 // Connection established
 connection.start().then(function () {
     console.log("Connected successfully")
     var deleteAllButton = document.getElementById("clearAll");
-
+    deleteAllButton.disabled = false;
     deleteAllButton.onclick = deleteMessages;
 }).catch(function (err) {
     return console.error(err.toString());
